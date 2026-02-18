@@ -1,6 +1,6 @@
-## Modular Trivia Quiz (Next.js 14)
+Trivia Quiz
 
-This is a modular trivia quiz application built with **Next.js 14 App Router** and **JavaScript**.
+This is a trivia quiz application built with **Next.js 14 App Router** and **JavaScript**.
 It consumes the **Open Trivia Database** API for categories and multiple-choice questions.
 
 ### Features
