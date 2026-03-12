@@ -1,0 +1,165 @@
+Create a Next.js 14 application using the App Router and JavaScript (NOT TypeScript).
+
+Project: Modular Trivia Quiz Website
+
+==================================================
+API INFORMATION (VERY IMPORTANT - FOLLOW EXACTLY)
+==================================================
+
+We are using the Open Trivia Database API.
+
+Base URL:
+https://opentdb.com
+
+1) Fetch Categories:
+GET https://opentdb.com/api_category.php
+
+Response format:
+{
+  "trivia_categories": [
+    { "id": 9, "name": "General Knowledge" },
+    { "id": 18, "name": "Science: Computers" }
+  ]
+}
+
+This returns an array called "trivia_categories".
+Each category has:
+- id (number)
+- name (string)
+
+--------------------------------------------------
+
+2) Fetch Questions:
+GET https://opentdb.com/api.php?amount=NUMBER&category=CATEGORY_ID&type=multiple
+
+Example:
+https://opentdb.com/api.php?amount=5&category=18&type=multiple
+
+Response format:
+{
+  "response_code": 0,
+  "results": [
+    {
+      "question": "What does CPU stand for?",
+      "correct_answer": "Central Processing Unit",
+      "incorrect_answers": [
+        "Central Process Unit",
+        "Computer Personal Unit",
+        "Central Processor Unit"
+      ]
+    }
+  ]
+}
+
+IMPORTANT:
+- If response_code === 0 → valid questions
+- Each question contains:
+  - question (string, may contain HTML entities)
+  - correct_answer (string)
+  - incorrect_answers (array of strings)
+
+We must:
+- Combine correct_answer + incorrect_answers
+- Shuffle options before displaying
+- Decode HTML entities before rendering
+
+==================================================
+FEATURE REQUIREMENTS
+==================================================
+
+1) Home Page:
+- Fetch categories from API on load
+- Dropdown to select category
+- Input field to select number of questions
+- Start Quiz button
+- On start, navigate to /quiz page using query params:
+  /quiz?category=ID&amount=NUMBER
+
+--------------------------------------------------
+
+2) Quiz Page:
+- Read category and amount from search params
+- Fetch questions from API
+- Display one question at a time
+- Show 4 shuffled options
+- Add a 20-second countdown timer for each question
+- If timer reaches 0:
+  - Automatically move to next question
+- Track score
+- At the end, show Result Screen with:
+  - Total score
+  - Restart button (go back to home)
+
+==================================================
+ARCHITECTURE REQUIREMENTS (VERY IMPORTANT)
+==================================================
+
+Keep modules strictly separated.
+Do NOT mix logic in one file.
+
+Use this structure:
+
+app/
+  page.js                 -> Home page
+  quiz/
+    page.js               -> Quiz page
+  api/
+    trivia/
+      route.js            -> Optional proxy route (if needed)
+
+components/
+  CategorySelector.js
+  QuestionCard.js
+  Timer.js
+  ResultScreen.js
+  LayoutWrapper.js
+
+lib/
+  fetchCategories.js
+  fetchQuestions.js
+  shuffleArray.js
+  decodeHtml.js
+
+Rules:
+- Keep fetching logic inside /lib
+- Keep UI inside /components
+- Keep page-level state inside page files
+- Do not mix timer logic inside QuestionCard
+- Timer must be its own reusable component
+- Use React hooks properly
+- Use "use client" only where needed
+
+==================================================
+TIMER LOGIC REQUIREMENTS
+==================================================
+
+Timer:
+- Starts at 20 seconds for each question
+- Decrements every 1 second
+- Resets when question changes
+- If reaches 0:
+  - Automatically trigger next question
+- Must use useEffect cleanup to prevent memory leaks
+
+==================================================
+CODING RULES
+==================================================
+
+- Use functional components only
+- Use React hooks (useState, useEffect)
+- Clean and readable code
+- No external UI libraries
+- Basic CSS only
+- Handle loading and error states
+- Handle response_code !== 0 case
+- Do NOT write everything in one file
+
+==================================================
+FINAL OUTPUT
+==================================================
+
+Generate:
+- Full folder structure
+- All required files
+- Clean modular implementation
+- Proper separation of concerns
