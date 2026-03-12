@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LayoutWrapper from '../../components/LayoutWrapper';
 import QuestionCard from '../../components/QuestionCard';
@@ -9,7 +9,7 @@ import ResultScreen from '../../components/ResultScreen';
 import Button from '../../components/Button';
 import { fetchQuestions } from '../../lib/fetchQuestions';
 
-export default function QuizPage() {
+function QuizContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -24,6 +24,7 @@ export default function QuizPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
   const [score, setScore] = useState(0);
+  const [wrongAnswers, setWrongAnswers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showResult, setShowResult] = useState(false);
@@ -54,6 +55,7 @@ export default function QuizPage() {
         setCurrentIndex(0);
         setSelectedOption('');
         setScore(0);
+        setWrongAnswers([]);
         setShowResult(false);
         setTimerResetKey((key) => key + 1);
       } catch (err) {
@@ -100,8 +102,20 @@ export default function QuizPage() {
     lastTransitionIndexRef.current = currentIndex;
 
     // Finalize answer and update score before moving to next question
-    if (currentQuestion && selectedOption === currentQuestion.correctAnswer) {
-      setScore((prev) => prev + 1);
+    if (currentQuestion) {
+      if (selectedOption === currentQuestion.correctAnswer) {
+        setScore((prev) => prev + 1);
+      } else if (selectedOption) {
+        // Track the wrong answer
+        setWrongAnswers((prev) => [
+          ...prev,
+          {
+            question: currentQuestion.question,
+            correctAnswer: currentQuestion.correctAnswer,
+            userAnswer: selectedOption
+          }
+        ]);
+      }
     }
 
     const isLastQuestion = currentIndex >= questions.length - 1;
@@ -183,6 +197,7 @@ export default function QuizPage() {
           <ResultScreen
             score={score}
             totalQuestions={questions.length}
+            wrongAnswers={wrongAnswers}
             onRestart={handleRestart}
           />
         )}
@@ -220,6 +235,14 @@ export default function QuizPage() {
         )}
       </div>
     </LayoutWrapper>
+  );
+}
+
+export default function QuizPage() {
+  return (
+    <Suspense fallback={<div>Loading quiz...</div>}>
+      <QuizContent />
+    </Suspense>
   );
 }
 
